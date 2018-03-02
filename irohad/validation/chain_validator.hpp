@@ -20,7 +20,7 @@
 
 #include <rxcpp/rx-observable.hpp>
 
-#include "model/commit.hpp"
+#include "interfaces/iroha_internal/commit.hpp"
 
 namespace shared_model {
   namespace interface {
@@ -56,7 +56,7 @@ namespace iroha {
        */
       // TODO: 14-02-2018 Alexey Chernyshov replace commit after relocation to
       // shared_model https://soramitsu.atlassian.net/browse/IR-903 or https://soramitsu.atlassian.net/browse/IR-902
-      virtual bool validateChain(Commit commit,
+      virtual bool validateChain(shared_model::interface::Commit commit,
                                  ametsuchi::MutableStorage &storage) = 0;
 
       /**

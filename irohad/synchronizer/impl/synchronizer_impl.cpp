@@ -45,7 +45,8 @@ namespace iroha {
       subscription_.unsubscribe();
     }
 
-    void SynchronizerImpl::process_commit(iroha::model::Block old_commit_message) {
+    void SynchronizerImpl::process_commit(
+        iroha::model::Block old_commit_message) {
       log_->info("processing commit");
       auto storageResult = mutableFactory_->createMutableStorage();
       std::unique_ptr<ametsuchi::MutableStorage> storage;
@@ -88,18 +89,18 @@ namespace iroha {
             return;
           }
           auto chain =
-              blockLoader_
-                  ->retrieveBlocks(shared_model::crypto::PublicKey(
-                      {signature.pubkey.begin(), signature.pubkey.end()}))
-                  .map([](auto block) {
-                    std::unique_ptr<iroha::model::Block> old_block(
-                        block->makeOldModel());
-                    return *old_block;
-                  });
+              blockLoader_->retrieveBlocks(shared_model::crypto::PublicKey(
+                  {signature.pubkey.begin(), signature.pubkey.end()}));
           if (validator_->validateChain(chain, *storage)) {
             // Peer send valid chain
             mutableFactory_->commit(std::move(storage));
-            notifier_.get_subscriber().on_next(chain);
+
+            //TODO Alexey Chernyshov move to shared_model
+            notifier_.get_subscriber().on_next(chain.map([](auto block) {
+              std::unique_ptr<iroha::model::Block> old_block(
+                  block->makeOldModel());
+              return *old_block;
+            }));
             // You are synchronized
             return;
           }
@@ -107,7 +108,7 @@ namespace iroha {
       }
     }
 
-    rxcpp::observable<Commit> SynchronizerImpl::on_commit_chain() {
+    rxcpp::observable<OldCommit> SynchronizerImpl::on_commit_chain() {
       return notifier_.get_observable();
     }
   }  // namespace synchronizer

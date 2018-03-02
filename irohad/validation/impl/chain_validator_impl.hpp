@@ -18,6 +18,7 @@
 #define IROHA_CHAIN_VALIDATOR_IMPL_HPP
 
 #include <memory>
+
 #include "logger/logger.hpp"
 #include "validation/chain_validator.hpp"
 
@@ -36,7 +37,7 @@ namespace iroha {
       ChainValidatorImpl(std::shared_ptr<consensus::SupermajorityChecker>
                              supermajority_checker);
 
-      bool validateChain(Commit blocks,
+      bool validateChain(shared_model::interface::Commit blocks,
                          ametsuchi::MutableStorage &storage) override;
 
       bool validateBlock(const shared_model::interface::Block &block,

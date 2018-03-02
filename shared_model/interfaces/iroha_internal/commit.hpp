@@ -1,5 +1,5 @@
 /**
- * Copyright Soramitsu Co., Ltd. 2017 All Rights Reserved.
+ * Copyright Soramitsu Co., Ltd. 2018 All Rights Reserved.
  * http://soramitsu.co.jp
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,20 @@
  * limitations under the License.
  */
 
-#ifndef IROHA_COMMIT_HPP
-#define IROHA_COMMIT_HPP
+#ifndef IROHA_SHARED_MODEL_COMMIT_HPP
+#define IROHA_SHARED_MODEL_COMMIT_HPP
 
 #include <rxcpp/rx-observable.hpp>
-#include "model/block.hpp"
 
-namespace iroha {
-  using OldCommit = rxcpp::observable<model::Block>;
-}  // namespace iroha
+#include "interfaces/iroha_internal/block.hpp"
+#include "common/wrapper.hpp"
 
-#endif  // IROHA_COMMIT_HPP
+namespace shared_model {
+  namespace interface {
+
+    using Commit =
+        rxcpp::observable<iroha::Wrapper<shared_model::interface::Block>>;
+  }
+}  // namespace shared_model
+
+#endif  // IROHA_SHARED_MODEL_COMMIT_HPP

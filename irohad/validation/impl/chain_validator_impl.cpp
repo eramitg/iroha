@@ -21,53 +21,47 @@
 #include "ametsuchi/mutable_storage.hpp"
 #include "consensus/yac/supermajority_checker.hpp"
 
-// TODO: 14-02-2018 Alexey Chernyshov remove this after relocation to
-// shared_model https://soramitsu.atlassian.net/browse/IR-903
-#include "backend/protobuf/from_old_model.hpp"
-
 namespace iroha {
   namespace validation {
 
-    ChainValidatorImpl::ChainValidatorImpl(std::shared_ptr<consensus::SupermajorityChecker> supermajority_checker) {
+    ChainValidatorImpl::ChainValidatorImpl(
+        std::shared_ptr<consensus::SupermajorityChecker>
+            supermajority_checker) {
       log_ = logger::log("ChainValidator");
       supermajority_checker_ = supermajority_checker;
     }
 
-    bool ChainValidatorImpl::validateBlock(const shared_model::interface::Block &block,
-                                           ametsuchi::MutableStorage &storage) {
+    bool ChainValidatorImpl::validateBlock(
+        const shared_model::interface::Block &block,
+        ametsuchi::MutableStorage &storage) {
       log_->info("validate block: height {}, hash {}",
                  block.height(),
                  block.hash().hex());
-      auto apply_block = [&](
-          const auto &block, auto &queries, const auto &top_hash) {
-        auto peers = queries.getPeers();
-        if (not peers.has_value()) {
-          return false;
-        }
-        return block.prevHash() == top_hash
-            and supermajority_checker_->hasSupermajority(block.signatures(), peers.value());
-      };
+      auto apply_block =
+          [&](const auto &block, auto &queries, const auto &top_hash) {
+            auto peers = queries.getPeers();
+            if (not peers.has_value()) {
+              return false;
+            }
+            return block.prevHash() == top_hash
+                and supermajority_checker_->hasSupermajority(block.signatures(),
+                                                             peers.value());
+          };
 
       // Apply to temporary storage
       return storage.apply(block, apply_block);
     }
 
-
-    // TODO: 14-02-2018 Alexey Chernyshov replace commit after relocation to
-    // shared_model https://soramitsu.atlassian.net/browse/IR-903 or https://soramitsu.atlassian.net/browse/IR-902
-    bool ChainValidatorImpl::validateChain(Commit blocks,
-                                           ametsuchi::MutableStorage &storage) {
+    bool ChainValidatorImpl::validateChain(
+        shared_model::interface::Commit blocks,
+        ametsuchi::MutableStorage &storage) {
       log_->info("validate chain...");
       return blocks
-          .all([this, &storage](auto old_block) {
-
-            // TODO: 14-02-2018 Alexey Chernyshov remove this after relocation to
-            // shared_model https://soramitsu.atlassian.net/browse/IR-903
-            auto block = shared_model::proto::from_old(old_block);
+          .all([this, &storage](auto block) {
             log_->info("Validating block: height {}, hash {}",
-                       block.height(),
-                       block.hash().hex());
-            return this->validateBlock(block, storage);
+                       block->height(),
+                       block->hash().hex());
+            return this->validateBlock(*block, storage);
           })
           .as_blocking()
           .first();

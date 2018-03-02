@@ -15,14 +15,11 @@
  * limitations under the License.
  */
 
-#include "module/shared_model/builders/protobuf/test_block_builder.hpp"
 #include "module/irohad/ametsuchi/ametsuchi_mocks.hpp"
 #include "module/irohad/consensus/yac/yac_mocks.hpp"
 #include "module/irohad/model/model_mocks.hpp"
+#include "module/shared_model/builders/protobuf/test_block_builder.hpp"
 #include "validation/impl/chain_validator_impl.hpp"
-
-// TODO: 14-02-2018 Alexey Chernyshov remove after relocation to shared_model
-#include "backend/protobuf/from_old_model.hpp"
 
 using namespace iroha;
 using namespace iroha::model;
@@ -117,34 +114,12 @@ TEST_F(ChainValidationTest, FailWhenDifferentPrevHash) {
 }
 
 /**
- * @given valid block signed by one peer of two peers (no supermajority)
+ * @given valid block with invalid supermajority
  * @when apply block
  * @then block is not validated
  */
 TEST_F(ChainValidationTest, FailWhenNoSupermajority) {
   // Valid previous hash, no supermajority, correct peers subset => invalid
-  auto block = getBlockBuilder().build();
-
-  EXPECT_CALL(*supermajority_checker,
-              hasSupermajority(testing::Ref(block.signatures()), _))
-      .WillOnce(Return(false));
-
-  peers.push_back(Peer());
-  EXPECT_CALL(*query, getPeers()).WillOnce(Return(peers));
-
-  EXPECT_CALL(*storage, apply(testing::Ref(block), _))
-      .WillOnce(InvokeArgument<1>(ByRef(block), ByRef(*query), ByRef(hash)));
-
-  ASSERT_FALSE(validator->validateBlock(block, *storage));
-}
-
-/**
- * @given block with wrong hash signed by wrong peer key
- * @when apply block
- * @then block is not validated
- */
-TEST_F(ChainValidationTest, FailWhenBadPeer) {
-  // Valid previous hash, has supermajority, incorrect peers subset => invalid
   auto block = getBlockBuilder().build();
 
   EXPECT_CALL(*supermajority_checker,
@@ -165,25 +140,21 @@ TEST_F(ChainValidationTest, FailWhenBadPeer) {
  * @then block is validated via observer
  */
 TEST_F(ChainValidationTest, ValidWhenValidateChainFromOnePeer) {
-  // TODO: 14-02-2018 Alexey Chernyshov remove hash after
-  // replacement with shared_model https://soramitsu.atlassian.net/browse/IR-903
-  // now it is needed because makeOldModel expects length of 32
-  auto hash = shared_model::crypto::Hash(std::string(32, '0'));
-
   // Valid previous hash, has supermajority, correct peers subset => valid
-  auto block = getBlockBuilder().prevHash(hash).build();
+  auto block = getBlockBuilder().build();
+  auto block_observable = rxcpp::observable<>::just(
+      iroha::makeWrapper<shared_model::interface::Block,
+                         shared_model::proto::Block>(
+          getBlockBuilder().build()));
 
   EXPECT_CALL(*supermajority_checker,
-              hasSupermajority(testing::Ref(block.signatures()), _))
+              hasSupermajority(/* testing::Ref(block.signatures()) */ _ , _))
       .WillOnce(Return(true));
 
   EXPECT_CALL(*query, getPeers()).WillOnce(Return(peers));
 
   // TODO: 14-02-2018 Alexey Chernyshov add argument to EXPECT_CALL after
   // replacement with shared_model https://soramitsu.atlassian.net/browse/IR-903
-  std::unique_ptr<iroha::model::Block> old_block(block.makeOldModel());
-  auto block_observable = rxcpp::observable<>::just(*old_block);
-
   EXPECT_CALL(*storage, apply(/* TODO block */ _, _))
       .WillOnce(InvokeArgument<1>(ByRef(block), ByRef(*query), ByRef(hash)));
 

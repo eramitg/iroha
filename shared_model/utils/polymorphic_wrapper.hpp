@@ -121,6 +121,22 @@ namespace shared_model {
         return ptr_.get();
       }
 
+      /**
+       * Mutable wrapped object
+       * @return pointer for wrapped object
+       */
+      WrappedType &operator*() {
+        return *ptr_.get();
+      }
+
+      /**
+       * Immutable wrapped object
+       * @return pointer for wrapped object
+       */
+      const WrappedType &operator*() const {
+        return *ptr_.get();
+      }
+
      private:
       /// pointer with wrapped value
       std::shared_ptr<WrappedType> ptr_;
