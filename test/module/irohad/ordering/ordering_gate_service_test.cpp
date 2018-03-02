@@ -15,12 +15,15 @@
  * limitations under the License.
  */
 
+#include <gtest/gtest.h>
+
 #include "backend/protobuf/common_objects/peer.hpp"
 #include "builders/protobuf/common_objects/proto_peer_builder.hpp"
 #include "framework/test_subscriber.hpp"
 #include "mock_ordering_service_persistent_state.hpp"
 #include "model/asset.hpp"
 #include "module/irohad/ametsuchi/ametsuchi_mocks.hpp"
+#include "module/irohad/network/network_mocks.hpp"
 #include "ordering/impl/ordering_gate_impl.hpp"
 #include "ordering/impl/ordering_gate_transport_grpc.hpp"
 #include "ordering/impl/ordering_service_impl.hpp"
@@ -32,6 +35,7 @@ using namespace iroha::network;
 using namespace framework::test_subscriber;
 using namespace iroha::ametsuchi;
 using namespace std::chrono_literals;
+
 using ::testing::Return;
 
 using wPeer = std::shared_ptr<shared_model::interface::Peer>;
@@ -40,9 +44,12 @@ using wPeer = std::shared_ptr<shared_model::interface::Peer>;
 class OrderingGateServiceTest : public ::testing::Test {
  public:
   OrderingGateServiceTest() {
+    pcs_ = std::make_shared<MockPeerCommunicationService>();
+    EXPECT_CALL(*pcs_, on_commit()).WillRepeatedly(Return(commit_subject_.get_observable()));
     peer.address = address;
     gate_transport = std::make_shared<OrderingGateTransportGrpc>(address);
     gate = std::make_shared<OrderingGateImpl>(gate_transport);
+    gate->setPcs(pcs_);
     gate_transport->subscribe(gate);
 
     service_transport = std::make_shared<OrderingServiceTransportGrpc>();
@@ -88,7 +95,10 @@ class OrderingGateServiceTest : public ::testing::Test {
 
   TestSubscriber<iroha::model::Proposal> init(size_t times) {
     auto wrapper = make_test_subscriber<CallExact>(gate->on_proposal(), times);
-    wrapper.subscribe([this](auto proposal) { proposals.push_back(proposal); });
+    wrapper.subscribe([this](auto proposal) {
+      proposals.push_back(proposal);
+      commit_subject_.get_subscriber().on_next(rxcpp::observable<>::just(iroha::model::Block{}));
+    });
     gate->on_proposal().subscribe([this](auto) {
       counter--;
       cv.notify_one();
@@ -96,6 +106,10 @@ class OrderingGateServiceTest : public ::testing::Test {
     return wrapper;
   }
 
+  /**
+   * Send a stub transaction to OS
+   * @param i - number of transaction
+   */
   void send_transaction(size_t i) {
     auto tx = std::make_shared<Transaction>();
     tx->tx_counter = i;
@@ -107,6 +121,10 @@ class OrderingGateServiceTest : public ::testing::Test {
   std::string address{"0.0.0.0:50051"};
   std::shared_ptr<OrderingGateImpl> gate;
   std::shared_ptr<OrderingServiceImpl> service;
+
+  /// Peer Communication Service and commit subject require for emulation of commits for Ordering Service
+  std::shared_ptr<MockPeerCommunicationService> pcs_;
+  rxcpp::subjects::subject<Commit> commit_subject_;
 
   std::vector<Proposal> proposals;
   std::atomic<size_t> counter;
@@ -122,9 +140,11 @@ class OrderingGateServiceTest : public ::testing::Test {
 };
 
 /**
- * @given ordering service
- * @when a bunch of transaction has arrived
- * @then proposal is sent
+ * @given Ordering service
+ * @when  Send 8 transactions
+ *        AND 2 transactions to OS
+ * @then  Received proposal with 8 transactions
+ *        AND proposal with 2 transactions
  */
 TEST_F(OrderingGateServiceTest, SplittingBunchTransactions) {
   // 8 transaction -> proposal -> 2 transaction -> proposal
