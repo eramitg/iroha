@@ -45,7 +45,8 @@ class OrderingGateServiceTest : public ::testing::Test {
  public:
   OrderingGateServiceTest() {
     pcs_ = std::make_shared<MockPeerCommunicationService>();
-    EXPECT_CALL(*pcs_, on_commit()).WillRepeatedly(Return(commit_subject_.get_observable()));
+    EXPECT_CALL(*pcs_, on_commit())
+        .WillRepeatedly(Return(commit_subject_.get_observable()));
     peer.address = address;
     gate_transport = std::make_shared<OrderingGateTransportGrpc>(address);
     gate = std::make_shared<OrderingGateImpl>(gate_transport);
@@ -97,7 +98,11 @@ class OrderingGateServiceTest : public ::testing::Test {
     auto wrapper = make_test_subscriber<CallExact>(gate->on_proposal(), times);
     wrapper.subscribe([this](auto proposal) {
       proposals.push_back(proposal);
-      commit_subject_.get_subscriber().on_next(rxcpp::observable<>::just(iroha::model::Block{}));
+
+      // emulate commit event after receiving the proposal for perforrming next
+      // round inside the peer.
+      commit_subject_.get_subscriber().on_next(
+          rxcpp::observable<>::just(iroha::model::Block{}));
     });
     gate->on_proposal().subscribe([this](auto) {
       counter--;
@@ -122,7 +127,8 @@ class OrderingGateServiceTest : public ::testing::Test {
   std::shared_ptr<OrderingGateImpl> gate;
   std::shared_ptr<OrderingServiceImpl> service;
 
-  /// Peer Communication Service and commit subject require for emulation of commits for Ordering Service
+  /// Peer Communication Service and commit subject require for emulation of
+  /// commits for Ordering Service
   std::shared_ptr<MockPeerCommunicationService> pcs_;
   rxcpp::subjects::subject<Commit> commit_subject_;
 
