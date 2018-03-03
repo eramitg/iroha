@@ -1,8 +1,9 @@
 #!/usr/bin/env groovy
 
 def doReleaseBuild() {
+	def parallelism = env.PARALLELISM
 	if (params.ARMv7) {
-		PARALLELISM = 1;
+		parallelism = 1;
 	}
 	def platform = sh(script: 'uname -m', returnStdout: true).trim()
 	// TODO: replace Github pull path as soon as multiplatform support will be merged
@@ -12,7 +13,7 @@ def doReleaseBuild() {
 	// speeds up consequent image builds as we simply tag them 
 	sh "docker pull ${DOCKER_BASE_IMAGE_DEVELOP}"
 	if (env.BRANCH_NAME == 'master') {
-	    iC = docker.build("hyperledger/iroha:${GIT_COMMIT}-${BUILD_NUMBER}", "-f /tmp/${env.GIT_COMMIT}/Dockerfile /tmp/${env.GIT_COMMIT} --build-arg PARALLELISM=${PARALLELISM}")
+	    iC = docker.build("hyperledger/iroha:${GIT_COMMIT}-${BUILD_NUMBER}", "-f /tmp/${env.GIT_COMMIT}/Dockerfile /tmp/${env.GIT_COMMIT} --build-arg PARALLELISM=${parallelism}")
 	}
 
 	sh "mkdir /tmp/${env.GIT_COMMIT}-${BUILD_NUMBER}"
@@ -39,7 +40,7 @@ def doReleaseBuild() {
 	          -DCMAKE_BUILD_TYPE=${params.BUILD_TYPE} \
 	          -DIROHA_VERSION=${env.IROHA_VERSION}
 	    """
-	    sh "cmake --build build -- -j${params.PARALLELISM}"
+	    sh "cmake --build build -- -j${parallelism}"
 	    sh "ccache --show-stats"
 	    // copy build package to the volume
 	    sh "cp ${IROHA_BUILD}/iroha.deb /tmp/${GIT_COMMIT}"
@@ -51,7 +52,7 @@ def doReleaseBuild() {
 	// TODO: iroha.deb package is now in the /tmp/${GIT_COMMIT}-${BUILD_NUMBER} directory. Think on how to add it to the release Dockerfile
 	sh "docker pull ${DOCKER_BASE_IMAGE_RELEASE}"
 	if (env.BRANCH_NAME == 'master') {
-	    iC = docker.build("hyperledger/iroha:${GIT_COMMIT}-${BUILD_NUMBER}", "-f /tmp/${env.GIT_COMMIT}/Dockerfile /tmp/${env.GIT_COMMIT} --build-arg PARALLELISM=${PARALLELISM}")
+	    iC = docker.build("hyperledger/iroha:${GIT_COMMIT}-${BUILD_NUMBER}", "-f /tmp/${env.GIT_COMMIT}/Dockerfile /tmp/${env.GIT_COMMIT} --build-arg PARALLELISM=${parallelism}")
 	    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials'){
         	iC.push("${platform}")
         }
