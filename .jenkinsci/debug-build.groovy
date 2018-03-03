@@ -64,6 +64,7 @@ def doDebugBuild() {
 	    sh "cmake --build build --target cppcheck"
 	    
 	    // Sonar
+	    // TODO: replace `true` as soon as sonar server migration will be completed
 	    if (env.CHANGE_ID != null) {
 	        sh """
 	            sonar-scanner \
@@ -73,7 +74,7 @@ def doDebugBuild() {
 	                -Dsonar.login=${SONAR_TOKEN} \
 	                -Dsonar.projectVersion=${BUILD_TAG} \
 	                -Dsonar.github.oauth=${SORABOT_TOKEN} \
-	                -Dsonar.github.pullRequest=${CHANGE_ID}
+	                -Dsonar.github.pullRequest=${CHANGE_ID} || true
 	        """
 	    }
 
