@@ -1,9 +1,16 @@
 #!/usr/bin/env groovy
+import jenkins.*
+import jenkins.model.*
 
 def doReleaseBuild() {
 	def parallelism = env.PARALLELISM
-	if (params.ARMv7) {
-		parallelism = 1;
+	def slaves = Jenkins.instance.slaves
+	def node_name = env.NODE_NAME
+	(slaves).each {
+	  tags = "${it.getLabelString().split(' ')}"
+	  if (tags.contains("armv7")) {
+	    parallelism = 1
+	  }
 	}
 	def platform = sh(script: 'uname -m', returnStdout: true).trim()
 	// TODO: replace Github pull path as soon as multiplatform support will be merged

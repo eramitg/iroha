@@ -1,9 +1,16 @@
 #!/usr/bin/env groovy
+import jenkins.*
+import jenkins.model.*
 
 def doDebugBuild() {
 	def parallelism = env.PARALLELISM
-	if (params.ARMv7) {
-		parallelism = 1;
+	def slaves = Jenkins.instance.slaves
+	def node_name = env.NODE_NAME
+	(slaves).each {
+	  tags = "${it.getLabelString().split(' ')}"
+	  if (tags.contains("armv7")) {
+	    parallelism = 1
+	  }
 	}
 	sh "docker network create ${env.IROHA_NETWORK}"
 
