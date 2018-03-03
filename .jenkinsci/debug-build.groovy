@@ -14,7 +14,6 @@ def doDebugBuild() {
 	    + " --network=${env.IROHA_NETWORK}")
 
 	def platform = sh(script: 'uname -m', returnStdout: true).trim()
-	// TODO: replace Github pull path as soon as multiplatform support will be merged
 	sh "curl -L -o /tmp/${env.GIT_COMMIT}/Dockerfile --create-dirs https://raw.githubusercontent.com/hyperledger/iroha/${env.GIT_COMMIT}/docker/develop/${platform}/Dockerfile"
 	// pull docker image in case we don't have one
 	// speeds up consequent image builds as we simply tag them 
@@ -79,7 +78,7 @@ def doDebugBuild() {
 	    }
 
 	    // TODO: replace with upload to artifactory server
-        // only develop branch
+        // develop branch only
         if ( env.BRANCH_NAME == "develop" ) {
             //archive(includes: 'build/bin/,compile_commands.json')
         }

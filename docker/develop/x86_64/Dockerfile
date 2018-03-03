@@ -16,7 +16,6 @@ RUN apt-get update; \
 RUN add-apt-repository -y ppa:git-core/ppa; \
     apt-get update
 
-# install curl libssl lcov valgrind etc
 RUN apt-get -y --no-install-recommends install build-essential python-software-properties \
         automake libtool \
         # dev dependencies
@@ -138,14 +137,6 @@ RUN git clone https://github.com/jtv/libpqxx /tmp/libpqxx; \
     make -j${PARALLELISM} -C /tmp/libpqxx; \
     make -C /tmp/libpqxx install; \
     rm -rf /tmp/libpqxx
-
-# install cpp_redis 4.3.0
-RUN git clone https://github.com/Cylix/cpp_redis /tmp/cpp_redis; \
-    (cd /tmp/cpp_redis ; git checkout f390eef447a62dcb6da288fb1e91f25f8a9b838c); \
-    (cd /tmp/cpp_redis ; git submodule update --init --recursive); \
-    cmake -H/tmp/cpp_redis -B/tmp/cpp_redis/build; \
-    cmake --build /tmp/cpp_redis/build --target install -- -j${PARALLELISM}; \
-    rm -rf /tmp/cpp_redis
 
 # install tbb
 RUN git clone https://github.com/01org/tbb /tmp/tbb; \
