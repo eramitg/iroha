@@ -139,6 +139,7 @@ namespace iroha {
                             [](auto &acc, auto &storage) {
                               return acc + storage.getNumberOfVotes();
                             });
+
         auto is_reject = supermajority_checker_->hasReject(
             max_vote, all_votes, peers_in_round_);
 

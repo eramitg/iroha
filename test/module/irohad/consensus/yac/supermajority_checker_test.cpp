@@ -20,7 +20,7 @@
 #include "consensus/yac/impl/supermajority_checker_impl.hpp"
 #include "logger/logger.hpp"
 
-using namespace iroha::consensus;
+using namespace iroha::consensus::yac;
 
 static logger::Logger log_ = logger::testLog("YacCommon");
 

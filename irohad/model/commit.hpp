@@ -19,7 +19,6 @@
 #define IROHA_COMMIT_HPP
 
 #include <rxcpp/rx-observable.hpp>
-#include "model/block.hpp"
 
 namespace iroha {
   using OldCommit = rxcpp::observable<model::Block>;

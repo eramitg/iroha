@@ -34,6 +34,8 @@ namespace iroha {
 
     namespace yac {
 
+      class SupermajorityChecker;
+
       /**
        * Class provide storage of votes for one block.
        */

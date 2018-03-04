@@ -20,15 +20,14 @@
 #include "ametsuchi/impl/postgres_wsv_query.hpp"
 #include "ametsuchi/mutable_storage.hpp"
 #include "consensus/yac/supermajority_checker.hpp"
+#include "model/peer.hpp"
 
 namespace iroha {
   namespace validation {
-
     ChainValidatorImpl::ChainValidatorImpl(
-        std::shared_ptr<consensus::SupermajorityChecker>
-            supermajority_checker) {
+        std::shared_ptr<consensus::yac::SupermajorityChecker> supermajority_checker)
+        : supermajority_checker_(supermajority_checker) {
       log_ = logger::log("ChainValidator");
-      supermajority_checker_ = supermajority_checker;
     }
 
     bool ChainValidatorImpl::validateBlock(

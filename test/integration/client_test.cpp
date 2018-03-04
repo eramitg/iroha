@@ -29,6 +29,7 @@
 #include "client.hpp"
 
 #include "main/server_runner.hpp"
+#include "torii/command_service.hpp"
 #include "torii/processor/query_processor_impl.hpp"
 #include "torii/processor/transaction_processor_impl.hpp"
 #include "torii/query_service.hpp"
@@ -36,6 +37,7 @@
 #include "model/converters/json_common.hpp"
 #include "model/converters/json_query_factory.hpp"
 #include "model/converters/json_transaction_factory.hpp"
+#include "model/converters/pb_transaction_factory.hpp"
 #include "model/permissions.hpp"
 
 #include "builders/protobuf/queries.hpp"
@@ -72,8 +74,10 @@ class ClientServerTest : public testing::Test {
     wsv_query = std::make_shared<MockWsvQuery>();
     block_query = std::make_shared<MockBlockQuery>();
 
-    rxcpp::subjects::subject<iroha::model::Proposal> prop_notifier;
-    rxcpp::subjects::subject<Commit> commit_notifier;
+    rxcpp::subjects::subject<
+          std::shared_ptr<shared_model::interface::Proposal>>
+          prop_notifier;
+    rxcpp::subjects::subject<iroha::Commit> commit_notifier;
 
     EXPECT_CALL(*pcsMock, on_proposal())
         .WillRepeatedly(Return(prop_notifier.get_observable()));

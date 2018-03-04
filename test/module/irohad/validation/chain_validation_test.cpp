@@ -35,12 +35,10 @@ using ::testing::_;
 class ChainValidationTest : public ::testing::Test {
  public:
   void SetUp() override {
-    supermajority_checker =
-        std::make_shared<iroha::consensus::yac::MockSupermajorityChecker>();
     validator = std::make_shared<ChainValidatorImpl>(supermajority_checker);
     storage = std::make_shared<MockMutableStorage>();
     query = std::make_shared<MockWsvQuery>();
-    peers = std::vector<Peer>{peer};
+    peers = std::vector<Peer>();
   }
 
   /**
@@ -56,16 +54,12 @@ class ChainValidationTest : public ::testing::Test {
         .createdTime(iroha::time::now());
   }
 
-  //  // TODO: 14-02-2018 Alexey Chernyshov make sure peer has valid key after
-  //  // replacement with shared_model
-  //  https://soramitsu.atlassian.net/browse/IR-903
-  Peer peer;
   std::vector<Peer> peers;
 
-  shared_model::crypto::Hash hash = shared_model::crypto::Hash("valid hash");
-
   std::shared_ptr<iroha::consensus::yac::MockSupermajorityChecker>
-      supermajority_checker;
+      supermajority_checker =
+          std::make_shared<iroha::consensus::yac::MockSupermajorityChecker>();
+  shared_model::crypto::Hash hash = shared_model::crypto::Hash("valid hash");
   std::shared_ptr<ChainValidatorImpl> validator;
   std::shared_ptr<MockMutableStorage> storage;
   std::shared_ptr<MockWsvQuery> query;
@@ -93,7 +87,7 @@ TEST_F(ChainValidationTest, ValidCase) {
 }
 
 /**
- * @given block with wrong hash signed by peers
+ * @given block with wrong hash
  * @when apply block
  * @then block is not validated
  */
@@ -114,8 +108,8 @@ TEST_F(ChainValidationTest, FailWhenDifferentPrevHash) {
 }
 
 /**
- * @given valid block with invalid supermajority
- * @when apply block
+ * @given block with wrong peers
+ * @when supermajority is not achieved
  * @then block is not validated
  */
 TEST_F(ChainValidationTest, FailWhenNoSupermajority) {

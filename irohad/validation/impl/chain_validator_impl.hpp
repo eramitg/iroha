@@ -25,8 +25,10 @@
 namespace iroha {
 
   namespace consensus {
-    class SupermajorityChecker;
-  }
+    namespace yac {
+      class SupermajorityChecker;
+    }
+  }  // namespace consensus
 
   namespace validation {
     /**
@@ -34,7 +36,7 @@ namespace iroha {
      */
     class ChainValidatorImpl : public ChainValidator {
      public:
-      ChainValidatorImpl(std::shared_ptr<consensus::SupermajorityChecker>
+      ChainValidatorImpl(std::shared_ptr<consensus::yac::SupermajorityChecker>
                              supermajority_checker);
 
       bool validateChain(shared_model::interface::Commit blocks,
@@ -44,8 +46,13 @@ namespace iroha {
                          ametsuchi::MutableStorage &storage) override;
 
      private:
+      /**
+       * Provide functions to check supermajority
+       */
+      std::shared_ptr<consensus::yac::SupermajorityChecker>
+          supermajority_checker_;
+
       logger::Logger log_;
-      std::shared_ptr<consensus::SupermajorityChecker> supermajority_checker_;
     };
   }  // namespace validation
 }  // namespace iroha

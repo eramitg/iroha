@@ -21,50 +21,53 @@
 
 namespace iroha {
   namespace consensus {
+    namespace yac {
 
-    bool SupermajorityCheckerImpl::hasSupermajority(
-        const shared_model::interface::SignatureSetType &signatures,
-        const std::vector<model::Peer> &peers) const {
-      return checkSize(signatures.size(), peers.size())
-          and peersSubset(signatures, peers);
-    }
-
-    bool SupermajorityCheckerImpl::checkSize(uint64_t current,
-                                             uint64_t all) const {
-      if (current > all) {
-        return false;
+      bool SupermajorityCheckerImpl::hasSupermajority(
+          const shared_model::interface::SignatureSetType &signatures,
+          const std::vector<model::Peer> &peers) const {
+        return checkSize(signatures.size(), peers.size())
+            and peersSubset(signatures, peers);
       }
-      auto f = (all - 1) / 3.0;
-      return current >= 2 * f + 1;
-    }
 
-    bool SupermajorityCheckerImpl::peersSubset(
-        const shared_model::interface::SignatureSetType &signatures,
-        const std::vector<model::Peer> &peers) const {
-      return std::all_of(
-          signatures.begin(), signatures.end(), [&peers](auto signature) {
-            return std::find_if(peers.begin(),
-                                peers.end(),
-                                [&signature](const model::Peer &peer) {
+      bool SupermajorityCheckerImpl::checkSize(uint64_t current,
+                                               uint64_t all) const {
+        if (current > all) {
+          return false;
+        }
+        auto f = (all - 1) / 3.0;
+        return current >= 2 * f + 1;
+      }
 
-                                  // TODO: 14-02-2018 Alexey Chernyshov remove
-                                  // this after relocation to shared_model
-                                  // https://soramitsu.atlassian.net/browse/IR-903
-                                  shared_model::crypto::PublicKey pubkey(
-                                      {peer.pubkey.begin(), peer.pubkey.end()});
+      bool SupermajorityCheckerImpl::peersSubset(
+          const shared_model::interface::SignatureSetType &signatures,
+          const std::vector<model::Peer> &peers) const {
+        return std::all_of(
+            signatures.begin(), signatures.end(), [&peers](auto signature) {
+              return std::find_if(
+                         peers.begin(),
+                         peers.end(),
+                         [&signature](const model::Peer &peer) {
 
-                                  return signature->publicKey() == pubkey;
-                                })
-                != peers.end();
-          });
-    }
+                           // TODO 14-02-2018 Alexey Chernyshov
+                           // remove after relocationn to shared_model
+                           // IR-903
+                           shared_model::crypto::PublicKey pubkey(
+                               {peer.pubkey.begin(), peer.pubkey.end()});
 
-    bool SupermajorityCheckerImpl::hasReject(uint64_t frequent,
-                                             uint64_t voted,
-                                             uint64_t all) const {
-      auto not_voted = all - voted;
-      return not checkSize(frequent + not_voted, all);
-    }
+                           return signature->publicKey() == pubkey;
+                         })
+                  != peers.end();
+            });
+      }
 
-  }  // namespace consensus
+      bool SupermajorityCheckerImpl::hasReject(uint64_t frequent,
+                                               uint64_t voted,
+                                               uint64_t all) const {
+        auto not_voted = all - voted;
+        return not checkSize(frequent + not_voted, all);
+      }
+
+    }  // namespace yac
+  }    // namespace consensus
 }  // namespace iroha

@@ -63,7 +63,6 @@ namespace iroha {
       }
 
       nonstd::optional<Answer> YacBlockStorage::getState() {
-        SupermajorityCheckerImpl supermajority_checker;
         auto supermajority =
             supermajority_checker_->checkSize(votes_.size(), peers_in_round_);
         if (supermajority) {

@@ -190,15 +190,13 @@ namespace iroha {
 
       class MockSupermajorityChecker : public SupermajorityChecker {
        public:
-        MOCK_CONST_METHOD2(
-            hasSupermajority,
-            bool(const shared_model::interface::SignatureSetType &signatures,
-                 const std::vector<model::Peer> &peers));
+        MOCK_CONST_METHOD2(hasSupermajority,
+                           bool(const shared_model::interface::SignatureSetType &signatures,
+                                const std::vector<model::Peer> &peers));
         MOCK_CONST_METHOD2(checkSize, bool(uint64_t current, uint64_t all));
-        MOCK_CONST_METHOD2(
-            peersSubset,
-            bool(const shared_model::interface::SignatureSetType &signatures,
-                 const std::vector<model::Peer> &peers));
+        MOCK_CONST_METHOD2(peersSubset,
+                           bool(const shared_model::interface::SignatureSetType &signatures,
+                                const std::vector<model::Peer> &peers));
         MOCK_CONST_METHOD3(
             hasReject, bool(uint64_t frequent, uint64_t voted, uint64_t all));
       };

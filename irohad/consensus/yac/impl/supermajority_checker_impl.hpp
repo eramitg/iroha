@@ -22,32 +22,34 @@
 
 namespace iroha {
   namespace consensus {
-    /**
-     * Implementation of SupermajorityChecker interface.
-     * Checks supermajority.
-     */
-    class SupermajorityCheckerImpl : public SupermajorityChecker {
-     public:
-      virtual ~SupermajorityCheckerImpl() = default;
-
+    namespace yac {
       /**
-       * Check if supermajority is achieved
+       * Implementation of SupermajorityChecker interface.
+       * Checks supermajority.
        */
-      virtual bool hasSupermajority(
-          const shared_model::interface::SignatureSetType &signatures,
-          const std::vector<model::Peer> &peers) const override;
+      class SupermajorityCheckerImpl : public SupermajorityChecker {
+       public:
+        virtual ~SupermajorityCheckerImpl() = default;
 
-      virtual bool checkSize(uint64_t current, uint64_t all) const override;
+        /**
+         * Check if supermajority is achieved
+         */
+        virtual bool hasSupermajority(
+            const shared_model::interface::SignatureSetType &signatures,
+            const std::vector<model::Peer> &peers) const override;
 
-      virtual bool peersSubset(
-          const shared_model::interface::SignatureSetType &signatures,
-          const std::vector<model::Peer> &peers) const override;
+        virtual bool checkSize(uint64_t current, uint64_t all) const override;
 
-      virtual bool hasReject(uint64_t frequent,
-                             uint64_t voted,
-                             uint64_t all) const override;
-    };
-  }  // namespace consensus
+        virtual bool peersSubset(
+            const shared_model::interface::SignatureSetType &signatures,
+            const std::vector<model::Peer> &peers) const override;
+
+        virtual bool hasReject(uint64_t frequent,
+                               uint64_t voted,
+                               uint64_t all) const override;
+      };
+    }  // namespace yac
+  }    // namespace consensus
 }  // namespace iroha
 
 #endif  // IROHA_SUPERMAJORITY_CHECKER_IMPL_HPP
