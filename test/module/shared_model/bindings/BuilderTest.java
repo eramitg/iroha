@@ -158,4 +158,10 @@ public class BuilderTest {
         UnsignedTx tx = builder.transferAsset("from@test", "to@test", "asset#test", "description", "123.456").build();
         assertTrue(checkProtoTx(proto(tx)));
     }
+
+    @Test
+    void setAccountDetail() {
+        UnsignedTx tx = builder.setAccountDetail("admin@test", "fyodor", "kek").build();
+        assertTrue(checkProtoTx(proto(tx)));
+    }
 }

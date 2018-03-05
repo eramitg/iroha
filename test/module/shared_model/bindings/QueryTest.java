@@ -152,4 +152,10 @@ public class QueryTest {
         UnsignedQuery query = builder.getTransactions(hv).build();
         assertTrue(checkProtoQuery(proto(query)));
     }
+
+    @Test
+    void getAccountDetail() {
+        UnsignedQuery query = builder.getAccountDetail("user@test", "hello").build();
+        assertTrue(checkProtoQuery(proto(query)));
+    }
 }
