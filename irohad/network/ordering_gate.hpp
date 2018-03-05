@@ -46,9 +46,9 @@ namespace iroha {
 
       /**
        * Set peer communication service for commit notification
-       * @param pcs - pointer for PeerCommunicationService
-       * design notes: psc passed by weak reference because of cyclic linking
-       * between OG and PSC in the implementation. Same reasons to move the psc
+       * @param pcs - const reference for PeerCommunicationService
+       * design notes: pcs passed by const reference because of cyclic linking
+       * between OG and PCS in the implementation. Same reasons to move the pcs
        * dependency not in ctor but make the setter method.
        * @return true, if setting first
        */

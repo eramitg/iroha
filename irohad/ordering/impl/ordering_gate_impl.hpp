@@ -20,8 +20,9 @@
 
 #include "network/ordering_gate.hpp"
 
-#include <tbb/concurrent_queue.h>
 #include <atomic>
+
+#include <tbb/concurrent_queue.h>
 
 #include "model/converters/pb_transaction_factory.hpp"
 #include "network/impl/async_grpc_client.hpp"

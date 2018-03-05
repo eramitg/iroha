@@ -127,7 +127,7 @@ class OrderingGateServiceTest : public ::testing::Test {
   std::shared_ptr<OrderingGateImpl> gate;
   std::shared_ptr<OrderingServiceImpl> service;
 
-  /// Peer Communication Service and commit subject are requires to emulate
+  /// Peer Communication Service and commit subject are required to emulate
   /// commits for Ordering Service
   std::shared_ptr<MockPeerCommunicationService> pcs_;
   rxcpp::subjects::subject<Commit> commit_subject_;
