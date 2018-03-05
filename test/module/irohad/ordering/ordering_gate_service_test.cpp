@@ -96,18 +96,19 @@ class OrderingGateServiceTest : public ::testing::Test {
 
   TestSubscriber<iroha::model::Proposal> init(size_t times) {
     auto wrapper = make_test_subscriber<CallExact>(gate->on_proposal(), times);
-    wrapper.subscribe([this](auto proposal) {
+    gate->on_proposal().subscribe([this](auto) {
+      counter--;
+      cv.notify_one();
+    });
+    gate->on_proposal().subscribe([this](auto proposal) {
       proposals.push_back(proposal);
 
       // emulate commit event after receiving the proposal to perform next
       // round inside the peer.
       commit_subject_.get_subscriber().on_next(
-          rxcpp::observable<>::just(iroha::model::Block{}));
+              rxcpp::observable<>::just(iroha::model::Block{}));
     });
-    gate->on_proposal().subscribe([this](auto) {
-      counter--;
-      cv.notify_one();
-    });
+    wrapper.subscribe();
     return wrapper;
   }
 
