@@ -40,10 +40,10 @@ namespace iroha {
     }
 
     bool OrderingGateImpl::setPcs(
-        std::weak_ptr<iroha::network::PeerCommunicationService> psc) {
-      if (psc.expired())
-        return false;
-      psc_subscriber_ = psc.lock()->on_commit().subscribe([this](auto) {
+        const iroha::network::PeerCommunicationService &pcs) {
+      pcs_subscriber_ = pcs.on_commit().subscribe([this](auto) {
+        // TODO: 05/03/2018 @muratovv rework behavior of queue with respect to
+        // block height IR-1042
         unlock_next_.store(true);
         this->tryNextRound();
 
@@ -53,7 +53,7 @@ namespace iroha {
 
     void OrderingGateImpl::onProposal(model::Proposal proposal) {
       log_->info("Received new proposal");
-      proposal_queue_.push(std::make_shared<model::Proposal>(proposal));
+      proposal_queue_.push(std::make_shared<model::Proposal>(std::move(proposal)));
       tryNextRound();
     }
 
@@ -61,13 +61,13 @@ namespace iroha {
       std::shared_ptr<model::Proposal> next_proposal;
       if (unlock_next_.load() and proposal_queue_.try_pop(next_proposal)) {
         unlock_next_.store(false);
-        log_->info("Throw proposal to pipeline");
+        log_->info("Pass the proposal to pipeline");
         proposals_.get_subscriber().on_next(*next_proposal);
       }
     }
 
     OrderingGateImpl::~OrderingGateImpl() {
-      psc_subscriber_.unsubscribe();
+      pcs_subscriber_.unsubscribe();
     }
 
   }  // namespace ordering

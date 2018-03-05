@@ -61,10 +61,10 @@ class CustomPeerCommunicationServiceMock : public PeerCommunicationService {
   void propagate_transaction(
       std::shared_ptr<const iroha::model::Transaction> transaction) override {}
 
-  rxcpp::observable<iroha::model::Proposal> on_proposal() override {
+  rxcpp::observable<iroha::model::Proposal> on_proposal() const override {
     return prop_notifier_.get_observable();
   }
-  rxcpp::observable<Commit> on_commit() override {
+  rxcpp::observable<Commit> on_commit() const override {
     return commit_notifier_.get_observable();
   }
 
@@ -105,7 +105,8 @@ class ToriiServiceTest : public testing::Test {
 
       //----------- Server run ----------------
       runner
-          ->append(std::make_unique<torii::CommandService>(tx_processor, storageMock, proposal_delay))
+          ->append(std::make_unique<torii::CommandService>(
+              tx_processor, storageMock, proposal_delay))
           .append(std::make_unique<torii::QueryService>(qpi))
           .run();
     });

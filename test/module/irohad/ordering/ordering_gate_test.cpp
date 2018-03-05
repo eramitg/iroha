@@ -102,9 +102,9 @@ class OrderingGateTest : public ::testing::Test {
 };
 
 /**
- * @given Setup initialization
- * @when  Send 5 transaction to Ordering Gate
- * @then  Check that transactions received
+ * @given Initialized OrderingGate
+ * @when  Send 5 transactions to Ordering Gate
+ * @then  Check that transactions are received
  */
 TEST_F(OrderingGateTest, TransactionReceivedByServerWhenSent) {
   size_t call_count = 0;
@@ -125,9 +125,9 @@ TEST_F(OrderingGateTest, TransactionReceivedByServerWhenSent) {
 }
 
 /**
- * @given Setup initialization
+ * @given Initialized OrderingGate
  * @when  Emulation of receiving proposal from the network
- * @then  Check that round starts <==> proposal emits in transaction pipeline
+ * @then  Round starts <==> proposal is emitted to subscribers
  */
 TEST_F(OrderingGateTest, ProposalReceivedByGateWhenSent) {
   auto wrapper = make_test_subscriber<CallExact>(gate_impl->on_proposal(), 1);
@@ -144,8 +144,9 @@ TEST_F(OrderingGateTest, ProposalReceivedByGateWhenSent) {
 }
 
 /**
- * @given Initialization of component
- * @when  Send two proposal
+ * @given Initialized OrderingGate
+ *        AND MockPeerCommunicationService
+ * @when  Send two proposals
  *        AND one commit in node
  * @then  Check that send round appears after commit
  */
@@ -160,7 +161,7 @@ TEST(OrderingGateQueueBehaviour, SendManyProposals) {
       .WillOnce(Return(commit_subject.get_observable()));
 
   OrderingGateImpl ordering_gate(transport);
-  ASSERT_TRUE(ordering_gate.setPcs(pcs));
+  ASSERT_TRUE(ordering_gate.setPcs(*pcs));
 
   auto wrapper_before =
       make_test_subscriber<CallExact>(ordering_gate.on_proposal(), 1);

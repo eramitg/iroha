@@ -31,9 +31,9 @@ namespace iroha {
       MOCK_METHOD1(propagate_transaction,
                    void(std::shared_ptr<const model::Transaction>));
 
-      MOCK_METHOD0(on_proposal, rxcpp::observable<model::Proposal>());
+      MOCK_CONST_METHOD0(on_proposal, rxcpp::observable<model::Proposal>());
 
-      MOCK_METHOD0(on_commit, rxcpp::observable<Commit>());
+      MOCK_CONST_METHOD0(on_commit, rxcpp::observable<Commit>());
     };
 
     class MockBlockLoader : public BlockLoader {
@@ -54,7 +54,7 @@ namespace iroha {
 
       MOCK_METHOD0(on_proposal, rxcpp::observable<model::Proposal>());
 
-      MOCK_METHOD1(setPcs, bool(std::weak_ptr<PeerCommunicationService> psc));
+      MOCK_METHOD1(setPcs, bool(const PeerCommunicationService &));
     };
 
     class MockConsensusGate : public ConsensusGate {

@@ -46,12 +46,13 @@ namespace iroha {
 
       /**
        * Set peer communication service for commit notification
-       * @param psc - pointer for psc
-       * design notes: psc passed by weak reference because of cyclic linking between OG and PSC in the implementation.
-       * Same reasons to move the psc dependency not in ctor but make the setter method.
+       * @param pcs - pointer for PeerCommunicationService
+       * design notes: psc passed by weak reference because of cyclic linking
+       * between OG and PSC in the implementation. Same reasons to move the psc
+       * dependency not in ctor but make the setter method.
        * @return true, if setting first
        */
-      virtual bool setPcs(std::weak_ptr<PeerCommunicationService> psc) = 0;
+      virtual bool setPcs(const PeerCommunicationService &pcs) = 0;
 
       virtual ~OrderingGate() = default;
     };

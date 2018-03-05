@@ -50,7 +50,7 @@ class OrderingGateServiceTest : public ::testing::Test {
     peer.address = address;
     gate_transport = std::make_shared<OrderingGateTransportGrpc>(address);
     gate = std::make_shared<OrderingGateImpl>(gate_transport);
-    gate->setPcs(pcs_);
+    gate->setPcs(*pcs_);
     gate_transport->subscribe(gate);
 
     service_transport = std::make_shared<OrderingServiceTransportGrpc>();
@@ -99,7 +99,7 @@ class OrderingGateServiceTest : public ::testing::Test {
     wrapper.subscribe([this](auto proposal) {
       proposals.push_back(proposal);
 
-      // emulate commit event after receiving the proposal for perforrming next
+      // emulate commit event after receiving the proposal to perform next
       // round inside the peer.
       commit_subject_.get_subscriber().on_next(
           rxcpp::observable<>::just(iroha::model::Block{}));
@@ -127,7 +127,7 @@ class OrderingGateServiceTest : public ::testing::Test {
   std::shared_ptr<OrderingGateImpl> gate;
   std::shared_ptr<OrderingServiceImpl> service;
 
-  /// Peer Communication Service and commit subject require for emulation of
+  /// Peer Communication Service and commit subject are requires to emulate
   /// commits for Ordering Service
   std::shared_ptr<MockPeerCommunicationService> pcs_;
   rxcpp::subjects::subject<Commit> commit_subject_;

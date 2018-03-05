@@ -33,11 +33,11 @@ namespace iroha {
     }
 
     rxcpp::observable<model::Proposal>
-    PeerCommunicationServiceImpl::on_proposal() {
+    PeerCommunicationServiceImpl::on_proposal() const {
       return ordering_gate_->on_proposal();
     }
 
-    rxcpp::observable<Commit> PeerCommunicationServiceImpl::on_commit() {
+    rxcpp::observable<Commit> PeerCommunicationServiceImpl::on_commit() const {
       return synchronizer_->on_commit_chain();
     }
   }  // namespace network

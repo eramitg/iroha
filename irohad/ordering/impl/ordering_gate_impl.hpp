@@ -18,12 +18,13 @@
 #ifndef IROHA_ORDERING_GATE_IMPL_HPP
 #define IROHA_ORDERING_GATE_IMPL_HPP
 
+#include "network/ordering_gate.hpp"
+
 #include <tbb/concurrent_queue.h>
 #include <atomic>
 
 #include "model/converters/pb_transaction_factory.hpp"
 #include "network/impl/async_grpc_client.hpp"
-#include "network/ordering_gate.hpp"
 #include "network/ordering_gate_transport.hpp"
 
 #include "logger/logger.hpp"
@@ -48,8 +49,7 @@ namespace iroha {
 
       rxcpp::observable<model::Proposal> on_proposal() override;
 
-      bool setPcs(
-          std::weak_ptr<iroha::network::PeerCommunicationService> psc) override;
+      bool setPcs(const iroha::network::PeerCommunicationService &pcs) override;
 
       void onProposal(model::Proposal proposal) override;
 
@@ -64,14 +64,14 @@ namespace iroha {
       rxcpp::subjects::subject<model::Proposal> proposals_;
       std::shared_ptr<iroha::network::OrderingGateTransport> transport_;
 
-      /// invariant: true for able to pushing next proposal
+      /// invariant: true if proposal can be pushed to subscribers
       std::atomic_bool unlock_next_{true};
 
       /// queue with all proposals received from ordering service
       tbb::concurrent_queue<std::shared_ptr<model::Proposal>> proposal_queue_;
 
       /// subscription of pcs::on_commit
-      rxcpp::composite_subscription psc_subscriber_;
+      rxcpp::composite_subscription pcs_subscriber_;
 
       logger::Logger log_;
     };
