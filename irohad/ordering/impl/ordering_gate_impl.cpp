@@ -39,7 +39,7 @@ namespace iroha {
       return proposals_.get_observable();
     }
 
-    bool OrderingGateImpl::setPcs(
+    void OrderingGateImpl::setPcs(
         const iroha::network::PeerCommunicationService &pcs) {
       pcs_subscriber_ = pcs.on_commit().subscribe([this](auto) {
         // TODO: 05/03/2018 @muratovv rework behavior of queue with respect to
@@ -48,7 +48,6 @@ namespace iroha {
         this->tryNextRound();
 
       });
-      return true;
     }
 
     void OrderingGateImpl::onProposal(model::Proposal proposal) {

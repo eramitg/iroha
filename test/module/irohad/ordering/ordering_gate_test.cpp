@@ -161,7 +161,6 @@ TEST(OrderingGateQueueBehaviour, SendManyProposals) {
       .WillOnce(Return(commit_subject.get_observable()));
 
   OrderingGateImpl ordering_gate(transport);
-  ASSERT_TRUE(ordering_gate.setPcs(*pcs));
 
   auto wrapper_before =
       make_test_subscriber<CallExact>(ordering_gate.on_proposal(), 1);

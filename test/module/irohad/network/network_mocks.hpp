@@ -54,7 +54,7 @@ namespace iroha {
 
       MOCK_METHOD0(on_proposal, rxcpp::observable<model::Proposal>());
 
-      MOCK_METHOD1(setPcs, bool(const PeerCommunicationService &));
+      MOCK_METHOD1(setPcs, void(const PeerCommunicationService &));
     };
 
     class MockConsensusGate : public ConsensusGate {

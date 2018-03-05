@@ -50,7 +50,7 @@ namespace iroha {
 
       rxcpp::observable<model::Proposal> on_proposal() override;
 
-      bool setPcs(const iroha::network::PeerCommunicationService &pcs) override;
+      void setPcs(const iroha::network::PeerCommunicationService &pcs) override;
 
       void onProposal(model::Proposal proposal) override;
 

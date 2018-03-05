@@ -50,9 +50,8 @@ namespace iroha {
        * design notes: pcs passed by const reference because of cyclic linking
        * between OG and PCS in the implementation. Same reasons to move the pcs
        * dependency not in ctor but make the setter method.
-       * @return true, if setting first
        */
-      virtual bool setPcs(const PeerCommunicationService &pcs) = 0;
+      virtual void setPcs(const PeerCommunicationService &pcs) = 0;
 
       virtual ~OrderingGate() = default;
     };
