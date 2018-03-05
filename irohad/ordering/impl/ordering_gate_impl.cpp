@@ -60,8 +60,8 @@ namespace iroha {
 
     void OrderingGateImpl::tryNextRound() {
       std::shared_ptr<model::Proposal> next_proposal;
-      if (unlock_next_.exchange(false)
-          and proposal_queue_.try_pop(next_proposal)) {
+      if (proposal_queue_.try_pop(next_proposal)
+          and unlock_next_.exchange(false)) {
         log_->info("Pass the proposal to pipeline");
         proposals_.get_subscriber().on_next(*next_proposal);
       }
